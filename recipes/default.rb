@@ -156,7 +156,8 @@ template 'apache2.conf' do
     path "#{node['apache']['dir']}/httpd.conf"
   end
   source   'apache2.conf.erb'
-  owner    node['apache']['user']
+  owner    'root'
+  group node['apache']['root_group']
   mode     '0644'
   notifies :restart, 'service[apache2]'
 end
@@ -205,6 +206,18 @@ end
 apache_site 'default' do
   enable node['apache']['default_site_enabled']
 end
+
+
+bash "fix permissions for centos" do
+  code <<-CODE
+    chcon -t httpd_config_t /etc/httpd/mods-available/*.conf
+    chcon -t httpd_config_t /etc/httpd/*.conf
+    chcon -t httpd_config_t /etc/httpd/conf.d/*
+    chcon -t httpd_config_t /etc/httpd/sites-enabled/*
+    chcon -t httpd_config_t /etc/httpd/conf/*
+  CODE
+end
+
 
 service 'apache2' do
   action :start
