@@ -156,8 +156,7 @@ template 'apache2.conf' do
     path "#{node['apache']['dir']}/httpd.conf"
   end
   source   'apache2.conf.erb'
-  owner    'root'
-  group    node['apache']['root_group']
+  owner    node['apache']['user']
   mode     '0644'
   notifies :restart, 'service[apache2]'
 end
